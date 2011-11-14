@@ -25,7 +25,7 @@ $app->post('/yuicompressor.{format}', function(Request $request) use($app) {
         $charset = $request->get('charset');
         $content = $request->get('content');
 
-        $cmd = "echo %s | java -jar /Users/pgodel/Sites/sgcontrol2.local/app/Resources/java/yuicompressor-2.4.6.jar --type %s --charset %s";
+        $cmd = "echo %s | java -jar ".__DIR__."/../java/yuicompressor-2.4.6.jar --type %s --charset %s";
 
         if (substr($in, -3) == 'css') {
             $type = 'css';
