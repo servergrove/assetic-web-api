@@ -10,12 +10,12 @@
  * with this source code in the file LICENSE.
  */
 
-mail('pablo@servergrove.com', 'assetic', 'assetic: '.print_r($_SERVER['argv'], true));
+//mail('pablo@servergrove.com', 'assetic', 'assetic: '.print_r($_SERVER['argv'], true));
 
 if (strpos($_SERVER['argv'][2], 'yuicompressor') !== false) {
     $content = file_get_contents($_SERVER['argv'][7]);
 
-    $ch = curl_init("http://assetic-web-api.local/yuicompressor.json");
+    $ch = curl_init("http://assetic.servergrove.com/yuicompressor.json");
 
     $vars = array(
       'charset' =>   $_SERVER['argv'][4],
