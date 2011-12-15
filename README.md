@@ -19,6 +19,10 @@ Download the client script assetic-client.php and configure assetic java path:
         yui_js:
             java: "~/assetic-client.php"
             jar: "yuicompressor-2.4.6.jar"
+        coffee:
+            bin: ~/assetic-client.php
+            node:  /usr/local/bin/php
+
 
 The jar setting is not important as long as it contains yuicompressor*.jar
 
@@ -38,7 +42,7 @@ Please feel free to send comments, issues and/or pull requests.
 TODO
 ----
 
-Need to implement remaining filters. yuicompresor is only one working at the moment.
+Need to implement remaining filters. yuicompresor and coffeescript are the only ones working at the moment.
 
 Credits
 -------
