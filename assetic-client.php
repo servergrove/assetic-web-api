@@ -2,6 +2,16 @@
 <?php
 
 /*
+ * This is the old client that now probably doesn't work anymore
+ * 
+ * You can use this Symfony2 Bundle | https://github.com/hpatoio/AsseticApiClientBundle 
+ * that add an assetic filter that provide the API to connect 
+ * to the new version of the application
+ * 
+ */
+
+
+/*
  * This file is part of the assetic web api.
  *
  * (c) Pablo Godel <pablo@servergrove.com>
