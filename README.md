@@ -9,22 +9,7 @@ This can also be useful for those that do not want to install and configure java
 Client Usage
 ------------
 
-Download the client script assetic-client.php and configure assetic java path:
-
-    filters:
-        cssrewrite: ~
-        yui_css:
-            java: "~/assetic-client.php"
-            jar: "yuicompressor-2.4.6.jar"
-        yui_js:
-            java: "~/assetic-client.php"
-            jar: "yuicompressor-2.4.6.jar"
-        coffee:
-            bin: ~/assetic-client.php
-            node:  /usr/local/bin/php
-
-
-The jar setting is not important as long as it contains yuicompressor*.jar
+Download and configure this bundle https://github.com/hpatoio/AsseticApiClientBundle
 
 Web API Server
 --------------

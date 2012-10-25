@@ -4,6 +4,7 @@
  * This file is part of the assetic web api.
  *
  * (c) Pablo Godel <pablo@servergrove.com>
+ * (c) Simone Fumagalli <simone@iliveinperego.com>
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -26,7 +27,6 @@ $app->post('/coffeescript.{format}', function(Request $request) use($app) {
 
     $cmd = sprintf($cmd, escapeshellarg($content));
 
-//        error_log($cmd);
     $ll = exec($cmd, $output, $retval);
 
     if ($retval == 0) {
@@ -59,46 +59,52 @@ $app->post('/coffeescript.{format}', function(Request $request) use($app) {
 
 
 $app->post('/yuicompressor.{format}', function(Request $request) use($app) {
-    $format = $app['request']->get('format');
-    $in = $request->get('in');
-    $out = $request->get('out');
-    $charset = $request->get('charset');
-    $content = $request->get('content');
+    
+    define ("YUI_CMD","java -jar ".__DIR__."/../java/yuicompressor-2.4.6.jar --type %s --charset %s %s");
+    
+    $format	= $app['request']->get('format');
+    $type	= $request->get('type');    // JS or CSS compression
+    $charset	= $request->get('charset');
+    $content 	= $request->get('content');
+    $client_uid	= $request->get('client_uid');
+    $tmp_file_name = "/tmp/yc-".$client_uid;
 
-    $cmd = "echo %s | java -jar ".__DIR__."/../java/yuicompressor-2.4.6.jar --type %s --charset %s";
+    try {
+        
+        file_put_contents($tmp_file_name, $content);
 
-    if (substr($in, -3) == 'css') {
-        $type = 'css';
-    } elseif (substr($in, -2) == 'js') {
-        $type = 'js';
-    } else {
-        $type = '';
-    }
+        $cmd = sprintf(YUI_CMD, $type, escapeshellarg($charset), $tmp_file_name);
 
-    $cmd = sprintf($cmd, escapeshellarg($content), $type, escapeshellarg($charset));
+        $ll = exec($cmd, $output, $retval);
+        
+        syslog(LOG_ERR, time().$cmd);
 
-//        error_log($cmd);
-    $ll = exec($cmd, $output, $retval);
+        unlink('/tmp/yc-'-$client_uid);
 
+        if ($retval !== 0)
+            throw new \Exception('Command failed | '.$cmd);
 
-    if ($retval == 0) {
-        $content = implode("", $output);
         $result = array(
             'result' => true,
-            'content' => $content,
+            'content' => implode("", $output),
         );
-    } else {
-        error_log($retval.': '.$ll.' - '.print_r($output, true));
+        
+    } catch (\Exception $e) {
+        
+        syslog(LOG_ERR, time().$retval.': '.$ll.' - '.$e->getMessage());
+
         $result = array(
             'result' => false,
-            'err' => 'Command failed',
+            'err' => $e->getMessage(),
         );
+        
     }
 
     switch($format) {
         case 'json':
             return new Response(
-                json_encode($result), $result['result'] ? 200 : 500,
+                json_encode($result), 
+                $result['result'] ? 200 : 500,
                 array('Content-Type' => 'application/json')
             );
             break;
@@ -107,6 +113,7 @@ $app->post('/yuicompressor.{format}', function(Request $request) use($app) {
             return $content;
             break;
     }
+        
 });
 
 return $app;
