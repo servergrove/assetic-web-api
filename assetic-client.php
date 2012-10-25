@@ -22,31 +22,31 @@
 
 function sendRequest($vars, $url)
 {
-    $ch = curl_init($url);
 
+    $ch = curl_init($url);
     $encoded = http_build_query($vars);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_POSTFIELDS,  $encoded);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($ch);
+    
+    syslog(LOG_ERR, "CURL - ".curl_error($ch));
+    
     curl_close($ch);
 
-    if (!$output) {
-        die(1);
-    }
+    if (!$output) return false;
+
     $decoded = json_decode($output);
-    if (!$decoded) {
-        die(1);
-    }
+    
+    syslog(LOG_ERR, "JSON -- ". print_r($decoded, true));
 
-    if ($decoded->result) {
-        $result = $decoded->content;
-    } else {
-        return null;
-    }
+    if (!$decoded) return false;
 
-    return $result;
+    if ($decoded->result) return $decoded->content;
+
+    return false;
+    
 }
 
 //mail('pablo@servergrove.com', 'assetic', 'assetic: '.print_r($_SERVER['argv'], true));
@@ -66,22 +66,38 @@ if (strpos($_SERVER['argv'][1], '-cp') !== false) {
     echo $result;
     die(0);
 }
+
+syslog(LOG_ERR, "Start -- ". print_r($_SERVER['argv'], true));
+
 if (strpos($_SERVER['argv'][2], 'yuicompressor') !== false) {
-    $content = file_get_contents($_SERVER['argv'][7]);
-
+    
     $url = "http://assetic.servergrove.com/yuicompressor.json";
+    $content = file_get_contents($_SERVER['argv'][9]);
+        
+    try {
 
-    $vars = array(
-      'charset' =>   $_SERVER['argv'][4],
-      'in' =>   $_SERVER['argv'][7],
-      'out' =>  $_SERVER['argv'][6],
-      'content' => $content,
-    );
+        $vars = array(
+          'charset' =>   $_SERVER['argv'][4],
+          'in' =>   $_SERVER['argv'][9],
+          'out' =>  $_SERVER['argv'][6],
+          'type' =>   $_SERVER['argv'][8],
+          'content' => $content,
+        );
 
-    if (null === $result = sendRequest($vars, $url)) {
+        $result = sendRequest($vars, $url);
+        
+        syslog(LOG_ERR, var_dump($result, true));
+
+        if ($result === false)
+            throw new \Exception('Problem calling web service | '.$result['err']);
+
+    } catch (\Exception $e) {
+
+        syslog(LOG_ERR, "ERRORE | ".$e->getMessage());
         $result = $content;
-    }
 
+    }
+        
     file_put_contents($_SERVER['argv'][6], $result);
     die(0);
 }
