@@ -39,7 +39,6 @@ function sendRequest($vars, $url)
     return $result;
 }
 
-//mail('pablo@servergrove.com', 'assetic', 'assetic: '.print_r($_SERVER['argv'], true));
 if (strpos($_SERVER['argv'][1], '-cp') !== false) {
     $content = file_get_contents($_SERVER['argv'][2]);
 
