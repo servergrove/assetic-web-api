@@ -56,13 +56,25 @@ if (strpos($_SERVER['argv'][1], '-cp') !== false) {
     die(0);
 }
 if (strpos($_SERVER['argv'][2], 'yuicompressor') !== false) {
-    $content = file_get_contents($_SERVER['argv'][7]);
 
     $url = "http://assetic.servergrove.com/yuicompressor.json";
 
+    if ($_SERVER['argv'][7] == '--type') {
+        $in = $_SERVER['argv'][9];
+        $type = $_SERVER['argv'][8];
+
+    } else {
+        $in = $_SERVER['argv'][7];
+        $info = new SplFileInfo($_SERVER['argv'][7]);
+        $type = $info->getExtension();
+    }
+
+    $content = file_get_contents($in);
+
     $vars = array(
       'charset' =>   $_SERVER['argv'][4],
-      'in' =>   $_SERVER['argv'][7],
+      'in' =>   $in,
+      'type' =>   $type,
       'out' =>  $_SERVER['argv'][6],
       'content' => $content,
     );
